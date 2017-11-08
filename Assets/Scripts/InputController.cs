@@ -17,6 +17,9 @@ public class InputController : MonoBehaviour {
 
 	// Dynamic vars
 	private bool _aiming;				// This returns true when mouse or touch is down
+	private Touch _aimTouch;			// The touch used as an input for aiming
+	private int _aimTouchID;			// The fingerID associated with _aimTouch
+	private int _prevTouchCount;		// TouchCount of previous frame
 
 
 	// On instantiation
@@ -32,45 +35,108 @@ public class InputController : MonoBehaviour {
 		}
 
 	// Computer
-		_aiming = (!_aiming)? Input.GetMouseButtonDown(0) : !Input.GetMouseButtonUp(0);
+		if(Application.isEditor) {
+			// If mouseclick hits ball start aiming
+			if(Input.GetMouseButtonDown(0)) {
+				Vector2 mPos = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+				Collider2D hit = Physics2D.OverlapPoint(mPos);
 
-		// If the screen is let go while the arrow is active (meaning a valid aim), shoot the ball
-		if(Input.GetMouseButtonUp(0) && _arrowSR.enabled) {
-			_arrowSR.enabled = false;
-			_gc.Shoot();
-			_ball.Shoot(_arrowTR.localScale.x,_arrowTR.localEulerAngles.z);
-			return;
-		}
-
-		if(_aiming) {
-			// mPos is the position of the mouse RELATIVE to the ball
-			Vector2 mPos = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - (Vector2)_ballTR.localPosition;
-			// If a valid aim, enable and update arrow transform
-			if(mPos.magnitude >= _minAim) {
-				if(!_arrowSR.enabled) {
-					_arrowSR.enabled = true;
+				if(hit) {
+					if(hit.transform.gameObject == _ball.gameObject) {
+						_aiming = true;
+					}
 				}
-				float zRot = (mPos.x >= 0)? Mathf.Atan(mPos.y/mPos.x) + Mathf.PI : Mathf.Atan(mPos.y/mPos.x);
-
-				_arrowTR.localRotation  = Quaternion.Euler(0, 0, 180 * zRot / Mathf.PI);
-				_arrowTR.localPosition  = new Vector2(Mathf.Cos(zRot),Mathf.Sin(zRot)) * -_offset;
-				_arrowTR.localScale  	= Vector2.one * Mathf.Clamp(mPos.magnitude, _minPower, _maxPower);
-
-			// If too close to ball, disable arrow
-			}else if(_arrowSR.enabled) {
-				_arrowSR.enabled = false;
 			}
-		// If not aiming, disable arrow
-		}else if(_arrowSR.enabled) {
-			_arrowSR.enabled = false;
+
+			// If mouse up while arrow is active (meaning a valid aim), shoot the ball. Otherwise, just disable arrow
+			if(Input.GetMouseButtonUp(0) && _aiming) {
+				if(_arrowSR.enabled) {
+					_gc.Shoot();
+					_ball.Shoot(_arrowTR.localScale.x,_arrowTR.localEulerAngles.z);
+				}
+				_aiming = false;
+				_arrowSR.enabled = false;
+				return;
+			}
+
+			if(_aiming) {
+				// mPos here is the position of the mouse RELATIVE to the ball
+				Vector2 mPos = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - (Vector2)_ballTR.localPosition;
+				// If a valid aim, enable and update arrow transform
+				if(mPos.magnitude >= _minAim) {
+					if(!_arrowSR.enabled) {
+						_arrowSR.enabled = true;
+					}
+					float zRot = (mPos.x >= 0)? Mathf.Atan(mPos.y/mPos.x) + Mathf.PI : Mathf.Atan(mPos.y/mPos.x);
+
+					_arrowTR.localRotation  = Quaternion.Euler(0, 0, 180 * zRot / Mathf.PI);
+					_arrowTR.localPosition  = new Vector2(Mathf.Cos(zRot),Mathf.Sin(zRot)) * -_offset;
+					_arrowTR.localScale  	= Vector2.one * Mathf.Clamp(mPos.magnitude, _minPower, _maxPower);
+
+				// If too close to ball, disable arrow
+				}else if(_arrowSR.enabled) {
+					_arrowSR.enabled = false;
+				}
+			}
 		}
 
 
 
 	// Phone
-		foreach(Touch touch in Input.touches) {
-			if(touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled) {
-				Debug.Log(touch.position.x + ", " + touch.position.y);
+		if(Application.isMobilePlatform) {
+			// Check for new touch. If touch hits ball and not already aiming, assign and start
+			if(Input.touchCount != _prevTouchCount) {
+				if(Input.touchCount > _prevTouchCount && !_aiming) {
+					Touch newTouch = Input.GetTouch(Input.touchCount - 1);
+					Vector2 tPos = (Vector2)Camera.main.ScreenToWorldPoint(newTouch.position);
+					Collider2D hit = Physics2D.OverlapPoint(tPos);
+
+					if(hit) {
+						if(hit.transform.gameObject == _ball.gameObject) {
+							_aimTouchID = newTouch.fingerId;
+							_aiming = true;
+						}
+					}
+				}
+				_prevTouchCount = Input.touchCount;
+			}
+
+			// Since Touch is a struct (stupid Unity), assign _aimTouch each frame... (stupid Unity)...
+			foreach(Touch touch in Input.touches) {
+				if(touch.fingerId == _aimTouchID) {
+					_aimTouch = touch;
+				}
+			}
+
+			// If touch ends while arrow is active (meaning a valid aim), shoot the ball. Otherwise, just disable arrow
+			if(_aimTouch.phase == TouchPhase.Ended) {
+				if(_arrowSR.enabled) {
+					_gc.Shoot();
+					_ball.Shoot(_arrowTR.localScale.x,_arrowTR.localEulerAngles.z);
+				}
+				_aiming = false;
+				_arrowSR.enabled = false;
+				return;
+			}
+
+			if(_aiming) {
+				// tPos here is the position of the touch RELATIVE to the ball
+				Vector2 tPos = (Vector2)Camera.main.ScreenToWorldPoint(_aimTouch.position) - (Vector2)_ballTR.localPosition;
+				// If a valid aim, enable and update arrow transform
+				if(tPos.magnitude >= _minAim) {
+					if(!_arrowSR.enabled) {
+						_arrowSR.enabled = true;
+					}
+					float zRot = (tPos.x >= 0)? Mathf.Atan(tPos.y/tPos.x) + Mathf.PI : Mathf.Atan(tPos.y/tPos.x);
+
+					_arrowTR.localRotation  = Quaternion.Euler(0, 0, 180 * zRot / Mathf.PI);
+					_arrowTR.localPosition  = new Vector2(Mathf.Cos(zRot),Mathf.Sin(zRot)) * -_offset;
+					_arrowTR.localScale  	= Vector2.one * Mathf.Clamp(tPos.magnitude, _minPower, _maxPower);
+
+				// If too close to ball, disable arrow
+				}else if(_arrowSR.enabled) {
+					_arrowSR.enabled = false;
+				}
 			}
 		}
 	}
@@ -92,9 +158,16 @@ public class InputController : MonoBehaviour {
 		_arrowSR 	= _arrowTR.gameObject.GetComponent<SpriteRenderer>();
 
 		_offset 	= 0.65f;
-		_minPower 	= 1f;
-		_maxPower 	= 4f;
-		_minAim	 	= 0.6f;
+		_minPower 	= 2f;
+		_maxPower 	= 5f;
+		_minAim	 	= 1.5f;
+
+		_prevTouchCount = 0;
+	}
+
+	// Determines whether to start aiming
+	private bool Aiming() {
+		return false;
 	}
 	
 }
