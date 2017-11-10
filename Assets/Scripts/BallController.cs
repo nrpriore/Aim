@@ -1,14 +1,12 @@
 ﻿using UnityEngine;						// To inherit from Monobehaviour
-using UnityEngine.SceneManagement;		// To change scenes
 
-/// Handles administrative game mechanics
-/// I.E. scene loading, stats, game phase, etc...
-public class GameController : MonoBehaviour {
+/// Handles ball mechanics in game
+public class BallController : MonoBehaviour {
 
 	// Constant vars
+	private Rigidbody2D _rb;			// Reference to rigidbody2d of ball
 
 	// Dynamic vars
-	private bool _shot;
 
 
 	// On instantiation
@@ -24,19 +22,10 @@ public class GameController : MonoBehaviour {
 /// -----------------------------------------------------------------------------------------------
 /// Public methods --------------------------------------------------------------------------------
 
-	// Returns _shot
-	public bool Shot {
-		get{return _shot;}
-	}
-
-	// Runs when ball is shot
-	public void Shoot() {
-		_shot = true;
-	}
-
-	// Restarts game
-	public void Restart() {
-		SceneManager.LoadSceneAsync("Game", LoadSceneMode.Single);
+	// Shoots ball with given power at given angle
+	public void Shoot(float power, float angle) {
+		_rb.velocity = Functions.GetVelocity(power, angle);
+		_rb.angularVelocity = (Mathf.Abs(angle) >= 90f)? 30f : -30f;
 	}
 
 /// -----------------------------------------------------------------------------------------------
@@ -44,7 +33,7 @@ public class GameController : MonoBehaviour {
 
 	// Initialize game variables
 	private void InitVars() {
-		_shot = false;
+		_rb = gameObject.GetComponent<Rigidbody2D>();
 	}
 	
 }
