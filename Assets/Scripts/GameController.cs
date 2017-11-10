@@ -1,7 +1,8 @@
 ﻿using UnityEngine;						// To inherit from Monobehaviour
 using UnityEngine.SceneManagement;		// To change scenes
 
- 
+/// Handles administrative game mechanics
+/// I.E. scene loading, stats, game phase, etc...
 public class GameController : MonoBehaviour {
 
 	// Constant vars

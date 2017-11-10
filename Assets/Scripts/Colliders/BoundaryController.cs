@@ -1,6 +1,6 @@
 ﻿using UnityEngine;						// To inherit from Monobehaviour
 
- 
+/// Handles boundary mechanics in game
 public class BoundaryController : MonoBehaviour {
 
 	// Constant vars

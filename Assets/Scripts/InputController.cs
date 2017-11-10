@@ -1,6 +1,7 @@
 ﻿using UnityEngine;						// To inherit from Monobehaviour
 
- 
+/// Handles cross-platform slingshot input during game
+/// Supported: editor, mobile
 public class InputController : MonoBehaviour {
 
 	// Constant vars
@@ -9,6 +10,7 @@ public class InputController : MonoBehaviour {
 	private Transform _arrowTR;			// Reference to transform of aiming arrow
 	private SpriteRenderer _arrowSR;	// Reference to SpriteRenderer of aiming arrow
 	private BallController _ball;		// Reference to current BallController script
+	private GameObject _ballBoundary;	// Reference to clickable boundary for ball
 
 	private float _offset;				// Distance from center of ball to tip of arrow (for UI_)
 	private float _minPower;			// Min scale of arrow (determines power)
@@ -17,6 +19,7 @@ public class InputController : MonoBehaviour {
 
 	// Dynamic vars
 	private bool _aiming;				// This returns true when mouse or touch is down
+	private Projection _projection;		// The Projection instance for this aim
 	private Touch _aimTouch;			// The touch used as an input for aiming
 	private int _aimTouchID;			// The fingerID associated with _aimTouch
 	private int _prevTouchCount;		// TouchCount of previous frame
@@ -34,16 +37,16 @@ public class InputController : MonoBehaviour {
 			return;
 		}
 
-	// Computer
+	// Editor
 		if(Application.isEditor) {
-			// If mouseclick hits ball start aiming
+			// If mouseclick hits ball boundary start aiming
 			if(Input.GetMouseButtonDown(0)) {
 				Vector2 mPos = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
 				Collider2D hit = Physics2D.OverlapPoint(mPos);
 
 				if(hit) {
-					if(hit.transform.gameObject == _ball.gameObject) {
-						_aiming = true;
+					if(hit.transform.gameObject == _ballBoundary) {
+						StartAiming();
 					}
 				}
 			}
@@ -54,8 +57,8 @@ public class InputController : MonoBehaviour {
 					_gc.Shoot();
 					_ball.Shoot(_arrowTR.localScale.x,_arrowTR.localEulerAngles.z);
 				}
-				_aiming = false;
-				_arrowSR.enabled = false;
+				DisableArrow();
+				StopAiming();
 				return;
 			}
 
@@ -73,9 +76,16 @@ public class InputController : MonoBehaviour {
 					_arrowTR.localPosition  = new Vector2(Mathf.Cos(zRot),Mathf.Sin(zRot)) * -_offset;
 					_arrowTR.localScale  	= Vector2.one * Mathf.Clamp(mPos.magnitude, _minPower, _maxPower);
 
+					// Update projection
+					_projection.Update(
+						_ball.gameObject.GetComponent<Rigidbody2D>(), 
+						(Vector2)_ball.gameObject.transform.localPosition, 
+						Functions.GetVelocity(_arrowTR.localScale.x, _arrowTR.localEulerAngles.z)
+					);
+
 				// If too close to ball, disable arrow
 				}else if(_arrowSR.enabled) {
-					_arrowSR.enabled = false;
+					DisableArrow();
 				}
 			}
 		}
@@ -84,7 +94,7 @@ public class InputController : MonoBehaviour {
 
 	// Phone
 		if(Application.isMobilePlatform) {
-			// Check for new touch. If touch hits ball and not already aiming, assign and start
+			// Check for new touch. If touch hits ball boundary and not already aiming, assign and start
 			if(Input.touchCount != _prevTouchCount) {
 				if(Input.touchCount > _prevTouchCount && !_aiming) {
 					Touch newTouch = Input.GetTouch(Input.touchCount - 1);
@@ -92,9 +102,9 @@ public class InputController : MonoBehaviour {
 					Collider2D hit = Physics2D.OverlapPoint(tPos);
 
 					if(hit) {
-						if(hit.transform.gameObject == _ball.gameObject) {
+						if(hit.transform.gameObject == _ballBoundary) {
 							_aimTouchID = newTouch.fingerId;
-							_aiming = true;
+							StartAiming();
 						}
 					}
 				}
@@ -114,8 +124,8 @@ public class InputController : MonoBehaviour {
 					_gc.Shoot();
 					_ball.Shoot(_arrowTR.localScale.x,_arrowTR.localEulerAngles.z);
 				}
-				_aiming = false;
-				_arrowSR.enabled = false;
+				DisableArrow();
+				StopAiming();
 				return;
 			}
 
@@ -135,7 +145,7 @@ public class InputController : MonoBehaviour {
 
 				// If too close to ball, disable arrow
 				}else if(_arrowSR.enabled) {
-					_arrowSR.enabled = false;
+					DisableArrow();
 				}
 			}
 		}
@@ -151,23 +161,42 @@ public class InputController : MonoBehaviour {
 
 	// Initialize game variables
 	private void InitVars() {
-		_gc 		= GameObject.Find("GameController").GetComponent<GameController>();
-		_ballTR		= GameObject.Find("Ball").transform;
-		_ball 		= _ballTR.gameObject.GetComponent<BallController>();
-		_arrowTR 	= GameObject.Find("Arrow").transform;
-		_arrowSR 	= _arrowTR.gameObject.GetComponent<SpriteRenderer>();
+		_gc 			= GameObject.Find("GameController").GetComponent<GameController>();
+		_ballTR			= GameObject.Find("Ball").transform;
+		_ball 			= _ballTR.gameObject.GetComponent<BallController>();
+		_ballBoundary 	= _ball.gameObject.transform.Find("ClickBoundary").gameObject;
+		_arrowTR 		= GameObject.Find("Arrow").transform;
+		_arrowSR 		= _arrowTR.gameObject.GetComponent<SpriteRenderer>();
 
-		_offset 	= 0.65f;
-		_minPower 	= 2f;
+		_offset 	= 0.75f;
+		_minPower 	= 2.5f;
 		_maxPower 	= 5f;
-		_minAim	 	= 1.5f;
+		_minAim	 	= 2f;
 
 		_prevTouchCount = 0;
 	}
 
-	// Determines whether to start aiming
-	private bool Aiming() {
-		return false;
+	// Runs when arrow is disabled
+	private void DisableArrow() {
+		if(_projection != null) {
+			_projection.HideProjection();
+		}
+		_arrowSR.enabled = false;
+	}
+
+	// Runs when aiming started
+	private void StartAiming() {
+		_aiming = true;
+		_projection = new Projection();
+	}
+
+	// Runs when aiming stopped
+	private void StopAiming() {
+		_aiming = false;
+		if(_projection != null) {
+			_projection.Destroy();
+		}
+		_projection = null;
 	}
 	
 }
