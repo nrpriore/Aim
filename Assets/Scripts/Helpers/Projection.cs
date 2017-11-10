@@ -10,7 +10,8 @@ public class Projection {
 	private int _collInterval;			// The interval in which to check projection for collisions
 	private float _redrawThreshold;		// Threshold at which movement redraws projection
 	private GameObject _ballProjection; // Reference to ball projection prefab
-	private int _objLayerMask;			// Reference to the layer mask holding objects for collision ("Objects")
+	private float _projectionRadius;	// Reference to radius of projection for faster collision detection
+	private int _objLayer;				// Reference to the layer mask holding objects for collision ("Objects")
 
 	// Dynamic vars
 	private GameObject[] _steps;		// The list of gameobjects building the projection
@@ -26,7 +27,8 @@ public class Projection {
 		_parent = new GameObject();
 		_parent.name = "Projection";
 		_ballProjection = Resources.Load<GameObject>("Prefabs/BallProjection");
-		_objLayerMask = LayerMask.GetMask("Objects");
+		_projectionRadius = _ballProjection.GetComponent<CircleCollider2D>().radius;
+		_objLayer = LayerMask.GetMask("Objects");
 
 		_steps = new GameObject[_numSteps/_interval];
 		for(int i = 0; i < _steps.Length; i++) {
@@ -77,7 +79,7 @@ public class Projection {
 
 			// Check _guide for collision each _collInterval
 			if(i % _collInterval == 0) {
-				Collider2D hit = Physics2D.OverlapCircle(pos, _ballProjection.GetComponent<CircleCollider2D>().radius, _objLayerMask);
+				Collider2D hit = Physics2D.OverlapCircle(pos, _projectionRadius, _objLayer);
 				if(hit) {
 					HideProjection(1 + (i/_interval));
 					return;

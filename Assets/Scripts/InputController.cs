@@ -37,6 +37,8 @@ public class InputController : MonoBehaviour {
 			return;
 		}
 
+		Vector2 inputPosition = Vector2.zero;
+
 	// Editor
 		if(Application.isEditor) {
 			// If mouseclick hits ball boundary start aiming
@@ -62,38 +64,12 @@ public class InputController : MonoBehaviour {
 				return;
 			}
 
+			// Assign inputposition for aiming
 			if(_aiming) {
-				// mPos here is the position of the mouse RELATIVE to the ball
-				Vector2 mPos = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - (Vector2)_ballTR.localPosition;
-				// If a valid aim, enable and update arrow transform
-				if(mPos.magnitude >= _minAim) {
-					if(!_arrowSR.enabled) {
-						_arrowSR.enabled = true;
-					}
-					float zRot = (mPos.x >= 0)? Mathf.Atan(mPos.y/mPos.x) + Mathf.PI : Mathf.Atan(mPos.y/mPos.x);
-
-					_arrowTR.localRotation  = Quaternion.Euler(0, 0, 180 * zRot / Mathf.PI);
-					_arrowTR.localPosition  = new Vector2(Mathf.Cos(zRot),Mathf.Sin(zRot)) * -_offset;
-					_arrowTR.localScale  	= Vector2.one * Mathf.Clamp(mPos.magnitude, _minPower, _maxPower);
-
-					// Update projection
-					_projection.Update(
-						_ball.gameObject.GetComponent<Rigidbody2D>(), 
-						(Vector2)_ball.gameObject.transform.localPosition, 
-						Functions.GetVelocity(_arrowTR.localScale.x, _arrowTR.localEulerAngles.z)
-					);
-
-				// If too close to ball, disable arrow
-				}else if(_arrowSR.enabled) {
-					DisableArrow();
-				}
+				inputPosition = Input.mousePosition;
 			}
-		}
 
-
-
-	// Phone
-		if(Application.isMobilePlatform) {
+		}else if(Application.isMobilePlatform) {
 			// Check for new touch. If touch hits ball boundary and not already aiming, assign and start
 			if(Input.touchCount != _prevTouchCount) {
 				if(Input.touchCount > _prevTouchCount && !_aiming) {
@@ -129,24 +105,40 @@ public class InputController : MonoBehaviour {
 				return;
 			}
 
+			// Assign inputposition for aiming
 			if(_aiming) {
-				// tPos here is the position of the touch RELATIVE to the ball
-				Vector2 tPos = (Vector2)Camera.main.ScreenToWorldPoint(_aimTouch.position) - (Vector2)_ballTR.localPosition;
-				// If a valid aim, enable and update arrow transform
-				if(tPos.magnitude >= _minAim) {
-					if(!_arrowSR.enabled) {
-						_arrowSR.enabled = true;
-					}
-					float zRot = (tPos.x >= 0)? Mathf.Atan(tPos.y/tPos.x) + Mathf.PI : Mathf.Atan(tPos.y/tPos.x);
+				inputPosition = _aimTouch.position;
+			}
 
-					_arrowTR.localRotation  = Quaternion.Euler(0, 0, 180 * zRot / Mathf.PI);
-					_arrowTR.localPosition  = new Vector2(Mathf.Cos(zRot),Mathf.Sin(zRot)) * -_offset;
-					_arrowTR.localScale  	= Vector2.one * Mathf.Clamp(tPos.magnitude, _minPower, _maxPower);
+		}else{
+			// WTF are you even using then??
+			return;
+		}
 
-				// If too close to ball, disable arrow
-				}else if(_arrowSR.enabled) {
-					DisableArrow();
+		if(_aiming) {
+			// mPos here is the position of the mouse RELATIVE to the ball
+			Vector2 pos = (Vector2)Camera.main.ScreenToWorldPoint(inputPosition) - (Vector2)_ballTR.localPosition;
+			// If a valid aim, enable and update arrow transform
+			if(pos.magnitude >= _minAim) {
+				if(!_arrowSR.enabled) {
+					_arrowSR.enabled = true;
 				}
+				float zRot = (pos.x >= 0)? Mathf.Atan(pos.y/pos.x) + Mathf.PI : Mathf.Atan(pos.y/pos.x);
+
+				_arrowTR.localRotation  = Quaternion.Euler(0, 0, 180 * zRot / Mathf.PI);
+				_arrowTR.localPosition  = new Vector2(Mathf.Cos(zRot),Mathf.Sin(zRot)) * -_offset;
+				_arrowTR.localScale  	= Vector2.one * Mathf.Clamp(pos.magnitude, _minPower, _maxPower);
+
+				// Update projection
+				_projection.Update(
+					_ball.gameObject.GetComponent<Rigidbody2D>(), 
+					(Vector2)_ball.gameObject.transform.localPosition, 
+					Functions.GetVelocity(_arrowTR.localScale.x, _arrowTR.localEulerAngles.z)
+				);
+
+			// If too close to ball, disable arrow
+			}else if(_arrowSR.enabled) {
+				DisableArrow();
 			}
 		}
 	}
@@ -170,7 +162,7 @@ public class InputController : MonoBehaviour {
 
 		_offset 	= 0.75f;
 		_minPower 	= 2.5f;
-		_maxPower 	= 5f;
+		_maxPower 	= 4.5f;
 		_minAim	 	= 2f;
 
 		_prevTouchCount = 0;

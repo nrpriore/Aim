@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour {
 
 	// Dynamic vars
 	private bool _shot;
+	private bool? _success;
 
 
 	// On instantiation
@@ -23,6 +24,22 @@ public class GameController : MonoBehaviour {
 
 /// -----------------------------------------------------------------------------------------------
 /// Public methods --------------------------------------------------------------------------------
+
+	// Runs on success
+	public void Success() {
+		if(_success != true) {
+			_success = true;
+			Debug.Log("Success");
+		}
+	}
+
+	// Runs on fail
+	public void Fail() {
+		if(_success != false) {
+			_success = false;
+			Debug.Log("Fail");
+		}
+	}
 
 	// Returns _shot
 	public bool Shot {
