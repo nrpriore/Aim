@@ -19,7 +19,7 @@ public class Projection {
 
 	// Constructor
 	public Projection() {
-		_numSteps = 10000;
+		_numSteps = 2000;
 		_interval = 500;
 		_collInterval = _interval / (Functions.POWER_MULT * 2);
 		_redrawThreshold = 1f;
