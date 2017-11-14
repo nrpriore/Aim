@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 212818114956129098}
   - component: {fileID: 70765454245308664}
   m_Layer: 10
-  m_Name: Bounce
+  m_Name: 04-Bounce
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

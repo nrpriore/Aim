@@ -39,7 +39,6 @@ public class InputController : MonoBehaviour {
 
 		Vector2 inputPosition = Vector2.zero;
 
-	// Editor
 		if(Application.isEditor) {
 			// If mouseclick hits ball boundary start aiming
 			if(Input.GetMouseButtonDown(0)) {

@@ -1,5 +1,5 @@
 ﻿using UnityEngine;						// To inherit from Monobehaviour
-using UnityEngine.SceneManagement;		// To change scenes
+using UnityEngine.SceneManagement;		// To access scene classes
 
 /// Handles administrative game mechanics
 /// I.E. scene loading, stats, game phase, etc...
@@ -53,7 +53,7 @@ public class GameController : MonoBehaviour {
 
 	// Restarts game
 	public void Restart() {
-		SceneManager.LoadSceneAsync("Game", LoadSceneMode.Single);
+		SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
 	}
 
 /// -----------------------------------------------------------------------------------------------

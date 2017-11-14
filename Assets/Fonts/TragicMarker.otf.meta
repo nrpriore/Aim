@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 562d9e5b6be034d598341ce05fa922f7
+timeCreated: 1510506182
+licenseType: Free
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Tragic Marker
+  fontNames:
+  - Tragic Marker
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
