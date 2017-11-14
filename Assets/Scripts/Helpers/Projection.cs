@@ -26,7 +26,7 @@ public class Projection {
 
 		_parent = new GameObject();
 		_parent.name = "Projection";
-		_ballProjection = Resources.Load<GameObject>("Prefabs/BallProjection");
+		_ballProjection = Resources.Load<GameObject>("Prefabs/Game/BallProjection");
 		_projectionRadius = _ballProjection.GetComponent<CircleCollider2D>().radius;
 		_objLayer = LayerMask.GetMask("Objects");
 
