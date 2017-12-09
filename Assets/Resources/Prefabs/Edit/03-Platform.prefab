@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 114179724028380402}
   - component: {fileID: 222522135478934740}
   - component: {fileID: 114710484294127028}
+  - component: {fileID: 70812948401216322}
   m_Layer: 12
   m_Name: 03-Platform
   m_TagString: Untagged
@@ -29,6 +30,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!70 &70812948401216322
+CapsuleCollider2D:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1558445944225976}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 1, y: 1}
+  m_Direction: 0
 --- !u!114 &114179724028380402
 MonoBehaviour:
   m_ObjectHideFlags: 1

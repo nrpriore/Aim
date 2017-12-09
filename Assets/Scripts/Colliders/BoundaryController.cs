@@ -15,7 +15,7 @@ public class BoundaryController : MonoBehaviour {
 	private LineRenderer _leftLR;
 	private LineRenderer _rightLR;
 
-	private float _offset;
+	private float _lineWidth;
 
 	// Dynamic vars
 
@@ -51,7 +51,7 @@ public class BoundaryController : MonoBehaviour {
 		_leftLR 	= _leftCol.gameObject.GetComponent<LineRenderer>();
 		_rightLR 	= _rightCol.gameObject.GetComponent<LineRenderer>();
 
-		_offset = _topLR.startWidth / 2f;
+		_lineWidth = _topLR.startWidth / 2f;
 	}
 
 	// Sets boundaries based on platform resolution
@@ -63,10 +63,10 @@ public class BoundaryController : MonoBehaviour {
 		_topCol.points 		= new [] {new Vector2(-unitWidth, unitHeight), 	new Vector2(unitWidth, unitHeight)};
 		_bottomCol.points 	= new [] {new Vector2(-unitWidth, -unitHeight), new Vector2(unitWidth, -unitHeight)};
 		_leftCol.points 	= new [] {new Vector2(-unitWidth, unitHeight), 	new Vector2(-unitWidth, -unitHeight)};
-		_rightCol.points 	= new [] {new Vector2(unitWidth, unitHeight), 	new Vector2(unitWidth, -unitHeight)};
+		_rightCol.points 	= new [] {new Vector2(unitWidth, unitHeight), new Vector2(unitWidth, -unitHeight)};
 
-		float posW = unitWidth + _offset;
-		float posH = unitHeight + _offset;
+		float posW = unitWidth + _lineWidth;
+		float posH = unitHeight + _lineWidth;
 		_topLR.SetPositions(	new [] {new Vector3(-posW, posH), 	new Vector3(posW, posH)});
 		_bottomLR.SetPositions(	new [] {new Vector3(-posW, -posH), 	new Vector3(posW, -posH)});
 		_leftLR.SetPositions(	new [] {new Vector3(-posW, posH), 	new Vector3(-posW, -posH)});
@@ -79,9 +79,11 @@ public class BoundaryController : MonoBehaviour {
 
 		// If in edit scene, update screen
 		if(SceneManager.GetActiveScene().name == "Edit") {
-			float offset = 2.5f;
+			float offset 		= Camera.main.orthographicSize * 0.5f;
+			float marginRight 	= Camera.main.orthographicSize * 0.4f;
+			float marginBot 	= Camera.main.orthographicSize * 0.32f;
 			Camera.main.orthographicSize += offset;
-			Camera.main.transform.localPosition = new Vector3(-((offset * ratio) - 2f),offset - 1.6f,-10);
+			Camera.main.transform.localPosition = new Vector3(-((offset * ratio) - marginRight),offset - marginBot,-10);
 		}
 	}
 	

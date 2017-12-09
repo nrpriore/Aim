@@ -1,6 +1,5 @@
 ﻿using UnityEngine;						// To inherit from Monobehaviour
 using UnityEngine.UI;					// To access scrollrect
-using System.Collections.Generic;		// For lists
 
  
 public class EditorObjectScroll : MonoBehaviour {
@@ -9,7 +8,6 @@ public class EditorObjectScroll : MonoBehaviour {
 	private ScrollRect _scrollRect;		// Reference to scrollrect component
 
 	// Dynamic vars
-	private List<EditorObject> _placedObjects;		// List of EditorObjects placed in edit view
 
 
 	// On instantiation
@@ -34,7 +32,6 @@ public class EditorObjectScroll : MonoBehaviour {
 	// Initialize game variables
 	private void InitVars() {
 		_scrollRect = gameObject.GetComponent<ScrollRect>();
-		_placedObjects = new List<EditorObject>();
 	}
 
 	// Populates scrollrect with objects
@@ -43,8 +40,8 @@ public class EditorObjectScroll : MonoBehaviour {
 		float yVal = -160f;
 		for(int i = 0; i < objects.Length; i++) {
 			RectTransform obj = Instantiate<GameObject>(objects[i]).GetComponent<RectTransform>();
-			obj.gameObject.GetComponent<EditorObject>().SetObjProperties();
-			obj.SetParent(_scrollRect.content);
+			obj.gameObject.GetComponent<EditorObject>().SetScrollViewProperties();
+			obj.SetParent(_scrollRect.content, false);
 
 			float height = GetHeight(obj);
 

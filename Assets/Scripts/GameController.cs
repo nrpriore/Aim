@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;		// To access scene classes
 /// I.E. scene loading, stats, game phase, etc...
 public class GameController : MonoBehaviour {
 
+	public static Level CurrentLevel;	// Current 'Level' script. Set by LevelUtil.LoadLevel()
+
 	// Constant vars
 
 	// Dynamic vars
@@ -15,6 +17,10 @@ public class GameController : MonoBehaviour {
 	// On instantiation
 	void Start() {
 		InitVars();
+
+
+		// Testing
+		LevelUtil.LoadLevel(1);
 	}
 
 	// Runs every frame

@@ -90,7 +90,7 @@ public class BallController : MonoBehaviour {
 		_anim = gameObject.GetComponent<Animator>();
 		_fixedUpdateTime = Time.fixedDeltaTime;
 
-		_decrementInterval = 0.005f;
+		_decrementInterval = 0.001f;
 		_velThreshold = 0.2f;
 	}
 

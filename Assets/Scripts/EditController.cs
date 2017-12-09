@@ -11,8 +11,11 @@ public class EditController : MonoBehaviour {
 	private int _prevTouchCount;		// TouchCount of previous frame
 	private Touch _aimTouch;			// The touch used as an input for aiming
 	private int _aimTouchID;			// The fingerID associated with _aimTouch
+	private Vector2 _lastPos;			// The position of touch/click last frame
+	private Vector2 _deltaPos;			// Difference between _lastPos and current position
 
 	private Touch activeTouch;
+
 
 
 	// On instantiation
@@ -21,21 +24,17 @@ public class EditController : MonoBehaviour {
 	}
 
 	// Runs every frame
-	void Update() {
-
-		Vector2 inputPosition = Vector2.zero;
+	void FixedUpdate() {
 
 	// Editor
 		if(Application.isEditor) {
 			if(Input.GetMouseButtonDown(0)) {
 				Vector2 mPos = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-				Collider2D hit = Physics2D.OverlapPoint(mPos, _objLayer);
-				Debug.Log(mPos);
-				Debug.Log(hit);
+				RaycastHit2D hit = Physics2D.Raycast(mPos, Vector2.zero, 0, _objLayer);
 
 				if(hit && _currObject == null) {
-					Debug.Log(hit.gameObject.name);
-					_currObject = hit.gameObject;
+					SetObject(hit);
+					_lastPos = (Vector2)Input.mousePosition;
 				}
 			}
 
@@ -44,7 +43,8 @@ public class EditController : MonoBehaviour {
 			}
 
 			if(_currObject != null) {
-				inputPosition = Input.mousePosition;
+				_deltaPos = new Vector2(Input.mousePosition.x - _lastPos.x, Input.mousePosition.y - _lastPos.y);
+				_lastPos = (Vector2)Input.mousePosition;
 			}
 
 		}
@@ -54,11 +54,12 @@ public class EditController : MonoBehaviour {
 				if(Input.touchCount > _prevTouchCount) {
 					Touch newTouch = Input.GetTouch(Input.touchCount - 1);
 					Vector2 tPos = (Vector2)Camera.main.ScreenToWorldPoint(newTouch.position);
-					Collider2D hit = Physics2D.OverlapPoint(tPos, _objLayer);
+					RaycastHit2D hit = Physics2D.Raycast(tPos, Vector2.zero, 0, _objLayer);
 
 					if(hit && _currObject == null) {
-						_currObject = hit.gameObject;
+						SetObject(hit);
 						_aimTouchID = newTouch.fingerId;
+						_lastPos = (Vector2)newTouch.position;
 					}
 				}
 				_prevTouchCount = Input.touchCount;
@@ -76,13 +77,15 @@ public class EditController : MonoBehaviour {
 			}
 
 			if(_currObject != null) {
-				inputPosition = _aimTouch.position;
+				_deltaPos = new Vector2(_aimTouch.position.x - _lastPos.x, _aimTouch.position.y - _lastPos.y);
+				_lastPos = _aimTouch.position;
 			}
 		}
 
 		// Update position
 		if(_currObject != null) {
-			_currObject.transform.localPosition = inputPosition;
+			RectTransform rt = _currObject.GetComponent<RectTransform>();
+			rt.anchoredPosition = new Vector2(rt.anchoredPosition.x + _deltaPos.x, rt.anchoredPosition.y + _deltaPos.y);
 		}
 	}
 
@@ -100,6 +103,14 @@ public class EditController : MonoBehaviour {
 
 		_prevTouchCount = 0;
 		_currObject = null;
+		_lastPos = Vector2.zero;
+		_deltaPos = Vector2.zero;
+	}
+
+	// Sets _currentObject and properties
+	private void SetObject(RaycastHit2D hit) {
+		_currObject = Instantiate<GameObject>(hit.transform.gameObject, hit.transform.parent);
+		_currObject.GetComponent<EditorObject>().SetPlacementProperties(hit.transform.gameObject);
 	}
 	
 }
