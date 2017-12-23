@@ -29,7 +29,7 @@ public class EditorObject : MonoBehaviour {
 	public void SetScrollViewProperties() {
 		// Update starting size to match in-game sprite
 		gameObject.name = gameObject.name.Substring(0, gameObject.name.Length - 7);
-		Sprite sprite = Resources.Load<GameObject>("Prefabs/Game/" + gameObject.name).GetComponent<SpriteRenderer>().sprite;
+		Sprite sprite = Resources.Load<GameObject>("Prefabs/Game/Objects/" + gameObject.name).GetComponent<SpriteRenderer>().sprite;
 
 		Vector2 worldSize = sprite.rect.size / sprite.pixelsPerUnit;
 		Vector2 screenSize = 0.5f * worldSize / Camera.main.orthographicSize;

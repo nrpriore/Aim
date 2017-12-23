@@ -19,13 +19,13 @@ public static class LevelUtil {
 	}
 
 	// Loads level data from levelID and creates Level instance
-	public static bool LoadLevel(int levelID) {
+	public static bool LoadLevel(int? levelID) {
 		// Later, load level from database via levelID
 		// For now, use hardcoded level
 		Dictionary<string, object> level = HardcodedTestLevel();
 
 		// Map dictionary to Level instance and create on screen
-		GameController.CurrentLevel = new Level(level);
+		Static.CurrentLevel = new Level(level);
 
 		bool success = true;
 		return success;
@@ -40,11 +40,16 @@ public static class LevelUtil {
 		Dictionary<string, object> level = new Dictionary<string, object>();
 		level.Add("ID", 1);
 		level.Add("Name", "HardcodedTestLevel");
-		level.Add("Size", new Vector2(16, 9));
+		level.Add("Size", 1);
+		level.Add("Boundary", true);
+		level.Add("Gravity", 1);
 		
 		// Add in-game objects
 		List<Dictionary<string, object>> objects = new List<Dictionary<string, object>>();
-		objects.Add(ObjToDict("01-Ball", Vector2.one, Vector2.zero, 0));
+		objects.Add(ObjToDict("01-Ball", Vector2.one, new Vector2(6, 5), 0));
+		objects.Add(ObjToDict("03-Platform", Vector2.one, new Vector2(13.96f, 5.46f), 118.8f));
+		objects.Add(ObjToDict("04-Bounce", Vector2.one, new Vector2(17.29f, 7.73f), 28.93f));
+		objects.Add(ObjToDict("02-Goal", Vector2.one, new Vector2(16.53f, 1.25f), 0));
 		level.Add("Objects", objects);
 
 		return level;

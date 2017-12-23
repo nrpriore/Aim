@@ -32,6 +32,16 @@ public static class Parse {
 		return (int.TryParse(obj.ToString(), out parsedInt))? parsedInt : defaultOverride;
 	}
 
+	// Converts an object to an int if valid, otherwise defaults
+	public static float Float(object obj, float defaultOverride = -1f) {
+		if(obj == null){
+			WriteError(new StackFrame(1, true));
+			return defaultOverride;
+		}
+		float parsedFloat;
+		return (float.TryParse(obj.ToString(), out parsedFloat))? parsedFloat : defaultOverride;
+	}
+
 	// Converts an object to a Vector2 if valid, otherse defaults
 	public static Vector2 VectorTwo(object obj, Vector2 defaultOverride = new Vector2()) {
 		if(obj == null){

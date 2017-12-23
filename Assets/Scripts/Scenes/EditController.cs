@@ -1,4 +1,5 @@
 ﻿using UnityEngine;						// To inherit from Monobehaviour
+using System.Collections;
 
  
 public class EditController : MonoBehaviour {
@@ -21,6 +22,10 @@ public class EditController : MonoBehaviour {
 	// On instantiation
 	void Start() {
 		InitVars();
+
+		if(Static.LevelID != null) { 
+			LevelUtil.LoadLevel(Static.LevelID);
+		}
 	}
 
 	// Runs every frame
@@ -92,7 +97,9 @@ public class EditController : MonoBehaviour {
 /// -----------------------------------------------------------------------------------------------
 /// Public methods --------------------------------------------------------------------------------
 
-	
+	public void TakeScreenShot() {
+		StartCoroutine(ScreenShot());
+	}
 
 /// -----------------------------------------------------------------------------------------------
 /// Private methods -------------------------------------------------------------------------------
@@ -112,5 +119,28 @@ public class EditController : MonoBehaviour {
 		_currObject = Instantiate<GameObject>(hit.transform.gameObject, hit.transform.parent);
 		_currObject.GetComponent<EditorObject>().SetPlacementProperties(hit.transform.gameObject);
 	}
+
+	private IEnumerator ScreenShot() {
+		Camera _camera = Camera.main;
+		Texture2D _screenShot;
+
+		yield return new WaitForEndOfFrame();
+
+		RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
+		_camera.targetTexture = rt;
+		_screenShot= new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+		_camera.Render();
+		RenderTexture.active = rt;
+		_screenShot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+		_screenShot.Apply();
+		_camera.targetTexture = null;
+		RenderTexture.active = null;
+		Destroy(rt);
+
+		string filename = "test";
+
+		Sprite tempSprite = Sprite.Create(_screenShot,new Rect(0,0,Screen.width,Screen.height),new Vector2(0,0));
+		GameObject.Find("SpriteObject").GetComponent<SpriteRenderer>().sprite = tempSprite;
+     }
 	
 }

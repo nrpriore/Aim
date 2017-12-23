@@ -73,6 +73,7 @@ public class BallController : MonoBehaviour {
 
 	// Shoots ball with given power at given angle
 	public void Shoot(float power, float angle) {
+		_rb.gravityScale = Static.CurrentLevel.Gravity;
 		_rb.velocity = Functions.GetVelocity(power, angle);
 		//_rb.angularVelocity = (Mathf.Abs(angle) >= 90f)? 300f : -300f;
 	}

@@ -26,13 +26,13 @@ public class Projection {
 
 		_parent = new GameObject();
 		_parent.name = "Projection";
-		_ballProjection = Resources.Load<GameObject>("Prefabs/Game/BallProjection");
+		_ballProjection = Resources.Load<GameObject>("Prefabs/Game/Helper/BallProjection");
 		_projectionRadius = _ballProjection.GetComponent<CircleCollider2D>().radius;
 		_objLayer = LayerMask.GetMask("Objects");
 
 		_steps = new GameObject[_numSteps/_interval];
 		for(int i = 0; i < _steps.Length; i++) {
-			_steps[i] = GameObject.Instantiate(_ballProjection, _parent.transform) as GameObject;
+			_steps[i] = Object.Instantiate<GameObject>(_ballProjection, _parent.transform);
 		}
 	}
 
@@ -59,7 +59,7 @@ public class Projection {
 
 	// Destroys Projection instance (different from hiding objects for update)
 	public void Destroy() {
-		GameObject.Destroy(_parent);
+		Object.Destroy(_parent);
 	}
 
 /// -----------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ public class Projection {
 	// Calculates the Vector2 array of positions
 	private void Plot(Rigidbody2D rigidbody, Vector2 pos, Vector2 velocity, int steps) {
 		float timestep = Time.fixedDeltaTime / Physics2D.velocityIterations;
-		Vector2 gravityAccel = Physics2D.gravity * rigidbody.gravityScale * timestep * timestep;
+		Vector2 gravityAccel = Physics2D.gravity * Static.CurrentLevel.Gravity * timestep * timestep;
 		float drag = 1f - timestep * rigidbody.drag;
 		Vector2 moveStep = velocity * timestep;
 

@@ -46,7 +46,7 @@ public class InputController : MonoBehaviour {
 				Collider2D hit = Physics2D.OverlapPoint(mPos);
 
 				if(hit) {
-					if(hit.transform.gameObject == _ballBoundary) {
+					if(ClickedBall(hit)) {
 						StartAiming();
 					}
 				}
@@ -77,7 +77,7 @@ public class InputController : MonoBehaviour {
 					Collider2D hit = Physics2D.OverlapPoint(tPos);
 
 					if(hit) {
-						if(hit.transform.gameObject == _ballBoundary) {
+						if(ClickedBall(hit)) {
 							_aimTouchID = newTouch.fingerId;
 							StartAiming();
 						}
@@ -156,7 +156,7 @@ public class InputController : MonoBehaviour {
 		_ballTR			= GameObject.Find("01-Ball").transform;
 		_ball 			= _ballTR.gameObject.GetComponent<BallController>();
 		_ballBoundary 	= _ball.gameObject.transform.Find("ClickBoundary").gameObject;
-		_arrowTR 		= GameObject.Find("Arrow").transform;
+		_arrowTR 		= _ball.gameObject.transform.Find("Arrow");
 		_arrowSR 		= _arrowTR.gameObject.GetComponent<SpriteRenderer>();
 
 		_offset 	= 0.75f;
@@ -165,6 +165,12 @@ public class InputController : MonoBehaviour {
 		_minAim	 	= 2f;
 
 		_prevTouchCount = 0;
+	}
+
+	// Determines whether ball or boundary is clicked
+	private bool ClickedBall(Collider2D hit) {
+		bool success = hit.transform.gameObject == _ballBoundary || hit.transform.gameObject == _ballBoundary.transform.parent.gameObject;
+		return success;
 	}
 
 	// Runs when arrow is disabled
