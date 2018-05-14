@@ -22,6 +22,8 @@ sysinfo.txt
 Assembly-CSharp.csproj
 *.sublime-project
 *.sublime-workspace
+*.code-workspace
+.vscode/
 *.sln
 *.pidb
 *.suo
