@@ -5,6 +5,7 @@ public class Projection {
 
 	// Constant vars
 	private GameObject _parent;			// Reference to parent gameobject holding step objects
+	private GameController _gc;
 	private int _numSteps;				// The number of iterations over which to build the projection
 	private int _interval;				// The interval in which to spawn step gameobjects
 	private int _collInterval;			// The interval in which to check projection for collisions
@@ -23,6 +24,8 @@ public class Projection {
 		_interval = 500;
 		_collInterval = _interval / (Functions.POWER_MULT * 2);
 		_redrawThreshold = 1f;
+
+		_gc = GameObject.Find("GameController").GetComponent<GameController>();
 
 		_parent = new GameObject();
 		_parent.name = "Projection";
@@ -68,7 +71,7 @@ public class Projection {
 	// Calculates the Vector2 array of positions
 	private void Plot(Rigidbody2D rigidbody, Vector2 pos, Vector2 velocity, int steps) {
 		float timestep = Time.fixedDeltaTime / Physics2D.velocityIterations;
-		Vector2 gravityAccel = Physics2D.gravity * Static.CurrentLevel.Gravity * timestep * timestep;
+		Vector2 gravityAccel = Physics2D.gravity * _gc.GravityScale * timestep * timestep;
 		float drag = 1f - timestep * rigidbody.drag;
 		Vector2 moveStep = velocity * timestep;
 

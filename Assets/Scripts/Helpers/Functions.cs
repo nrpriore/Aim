@@ -15,8 +15,23 @@ public static class Functions {
 		return new Vector2(Mathf.Cos(angleRad),Mathf.Sin(angleRad)) * power * POWER_MULT;
 	}
 
+	// Delete screenshot preview
+	public static void DeleteScreenshot(string levelID) {
+		if(System.IO.File.Exists(Application.persistentDataPath + "/Resources/Screenshots/" + levelID + ".jpg")) {
+			System.IO.File.Delete(Application.persistentDataPath + "/Resources/Screenshots/" + levelID + ".jpg");
+		}
+	}
+
 /// -----------------------------------------------------------------------------------------------
 /// General Methods -------------------------------------------------------------------------------
+
+	// Used to set a gameobject and all of it's children to the specified layer
+	public static void SetLayerRecursively(GameObject obj, int layer) {
+		if (obj == null) return;
+        foreach (Transform child in obj.GetComponentsInChildren<Transform>(true)) {
+            child.gameObject.layer = layer;
+        }
+	}
 
 	// Used to covert a hex string into a Unity Color
 	public static Color HexToColor(string hex) {

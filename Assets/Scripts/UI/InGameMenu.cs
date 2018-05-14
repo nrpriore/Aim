@@ -1,11 +1,11 @@
 ﻿using UnityEngine;						// To inherit from Monobehaviour
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
  
 public class InGameMenu : MonoBehaviour {
 
 	// Constant vars
-	private const float LERP_THRESHOLD = 0.0001f;
 	private RectTransform _menu;
 	private Image _background;
 
@@ -36,6 +36,15 @@ public class InGameMenu : MonoBehaviour {
 			_target = Vector2.zero;
 			_background.enabled = false;
 		}
+	}
+
+	public void GoToEditorNav() {
+		Static.CurrentLevel = null;
+		SceneManager.LoadSceneAsync("EditorNav", LoadSceneMode.Single);
+	}
+
+	public void GoToEditor() {
+		SceneManager.LoadSceneAsync("Editor", LoadSceneMode.Single);
 	}
 
 /// -----------------------------------------------------------------------------------------------

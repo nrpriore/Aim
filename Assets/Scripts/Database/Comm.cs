@@ -1,10 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
-using UnityEngine.Networking;
-using System.Threading;
 using System.Net;
 using System.IO;
 using MiniJSON;
@@ -49,10 +44,11 @@ void Start () {
 
 public static class Comm{
 
-	private static string APIKey = "***";
+	private static string APIKey = "677a2b0dc212de88f26aa0c18b78099ffe16e261";
 	private static string BaseURL = "https://centralcontrol.herokuapp.com/";
 
 	private static string _SendAndGetResponse(HttpWebRequest request, string payload){
+		ServicePointManager.ServerCertificateValidationCallback = (p1, p2, p3, p4) => true;
 		request.ContentType = "application/json";
 		request.Headers["Accepts"] = "application/json";
 		request.Headers["Authorization"] = "Token " + Comm.APIKey;
@@ -99,15 +95,9 @@ public static class Comm{
 		return aboutResponse;
 	}
 
-	public static Dictionary<string, object> SendInsert(string modelName, DatabaseObject[] objects){
+	public static Dictionary<string, object> SendInsert(Dictionary<string, object> insert){
 		//Create the insert JSON request
-		var jsonRequest = new Dictionary<string, object>();
-		jsonRequest["model_name"] = modelName;
-		jsonRequest["objects"] = new object[objects.Length];
-
-		for (int i = 0; i < objects.Length; i++){
-			((object[])jsonRequest["objects"])[i] = objects[i].ToDict();
-		}
+		var jsonRequest = insert;
 
 		//Convert the insert request to JSON
 		string payload = Json.Serialize(jsonRequest);
@@ -125,7 +115,7 @@ public static class Comm{
 		// Serialize the response to a dictionary
 		var changedResponse = Json.Deserialize(response) as Dictionary<string, object>;
 
-		Debug.Log("Changed: " + (bool) changedResponse["changed"]);
+		Debug.Log("Changed: " + Parse.Int(changedResponse["changed"]));
 
 		if (changedResponse.ContainsKey("error_code")){
 			Debug.Log("error_code: " + (string) changedResponse["error_code"]);
@@ -138,9 +128,75 @@ public static class Comm{
 		return changedResponse;
 	}
 
-	public static Dictionary<string, object> SendQuery(Query query){
+	public static Dictionary<string, object> SendUpdate(Dictionary<string, object> update){
+		//Create the insert JSON request
+		Dictionary<string, object> jsonRequest = update;
+
+		//Convert the insert request to JSON
+		string payload = Json.Serialize(jsonRequest);
+		Debug.Log(payload);
+
+		//Construct the POST request
+		HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Comm.BaseURL + "/api/v1/data/update");
+		request.Method = "POST";
+		
+    	//Send the request and receive the response
+		string response = _SendAndGetResponse(request, payload);
+
+		Debug.Log("Response: " + response);
+
+		// Serialize the response to a dictionary
+		var changedResponse = Json.Deserialize(response) as Dictionary<string, object>;
+
+		Debug.Log("Changed: " + Parse.Int(changedResponse["changed"]));
+
+		if (changedResponse.ContainsKey("error_code")){
+			Debug.Log("error_code: " + (string) changedResponse["error_code"]);
+		}
+
+		if (changedResponse.ContainsKey("message")){
+			Debug.Log("message: " + (string) changedResponse["message"]);
+		}
+
+		return changedResponse;
+	}
+
+	public static Dictionary<string, object> SendDelete(Dictionary<string, object> delete){
+		//Create the insert JSON request
+		Dictionary<string, object> jsonRequest = delete;
+
+		//Convert the insert request to JSON
+		string payload = Json.Serialize(jsonRequest);
+		Debug.Log(payload);
+
+		//Construct the POST request
+		HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Comm.BaseURL + "/api/v1/data/delete");
+		request.Method = "POST";
+		
+    	//Send the request and receive the response
+		string response = _SendAndGetResponse(request, payload);
+
+		Debug.Log("Response: " + response);
+
+		// Serialize the response to a dictionary
+		var changedResponse = Json.Deserialize(response) as Dictionary<string, object>;
+
+		Debug.Log("Changed: " + Parse.Int(changedResponse["changed"]));
+
+		if (changedResponse.ContainsKey("error_code")){
+			Debug.Log("error_code: " + (string) changedResponse["error_code"]);
+		}
+
+		if (changedResponse.ContainsKey("message")){
+			Debug.Log("message: " + (string) changedResponse["message"]);
+		}
+
+		return changedResponse;
+	}
+
+	public static List<Dictionary<string, object>> SendQuery(Dictionary<string, object> query){
 		//Create the query JSON request
-		var jsonRequest = query.ToDict();
+		var jsonRequest = query;
 
 		//Convert the query request to JSON
 		string payload = Json.Serialize(jsonRequest);
@@ -157,7 +213,13 @@ public static class Comm{
 
 		var queryResponse = Json.Deserialize(response) as Dictionary<string, object>;
 
-		return queryResponse;
+		List<object> dataList = (List<object>)(queryResponse["data"]);
+		List<Dictionary<string, object>> dataDictList = new List<Dictionary<string, object>>();
+		foreach(object obj in dataList) {
+			dataDictList.Add((Dictionary<string, object>)obj);
+		}
+
+		return dataDictList;
 	}
 
 }

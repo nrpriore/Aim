@@ -153,7 +153,7 @@ public class InputController : MonoBehaviour {
 	// Initialize game variables
 	private void InitVars() {
 		_gc 			= GameObject.Find("GameController").GetComponent<GameController>();
-		_ballTR			= GameObject.Find("01-Ball").transform;
+		_ballTR			= GameObject.Find("Ball").transform;
 		_ball 			= _ballTR.gameObject.GetComponent<BallController>();
 		_ballBoundary 	= _ball.gameObject.transform.Find("ClickBoundary").gameObject;
 		_arrowTR 		= _ball.gameObject.transform.Find("Arrow");

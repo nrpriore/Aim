@@ -8,6 +8,8 @@ public class GameController : MonoBehaviour {
 	// Constant vars
 
 	// Dynamic vars
+	private float _gravityScale;
+
 	private bool _shot;
 	private bool? _success;
 
@@ -15,12 +17,9 @@ public class GameController : MonoBehaviour {
 	// On instantiation
 	void Start() {
 		InitVars();
-		Prefabs.LoadPrefabs();
 
-		if(Static.LevelID != null) { 
-			LoadLevel(Static.LevelID);
-		}else {
-			LoadLevel(1);
+		if(Static.CurrentLevel != null) { 
+			LoadLevel();
 		}
 	}
 
@@ -53,6 +52,12 @@ public class GameController : MonoBehaviour {
 		get{return _shot;}
 	}
 
+	// Returns gravity scale
+	public float GravityScale {
+		set{_gravityScale = value;}
+		get{return _gravityScale;}
+	}
+
 	// Runs when ball is shot
 	public void Shoot() {
 		_shot = true;
@@ -69,11 +74,12 @@ public class GameController : MonoBehaviour {
 	// Initialize game variables
 	private void InitVars() {
 		_shot = false;
+		_gravityScale = 1f;
 	}
 
 	// Loads level
-	private void LoadLevel(int? levelID) {
-		LevelUtil.LoadLevel(levelID);
+	private void LoadLevel() {
+		LevelUtil.LoadCurrentLevel();
 		gameObject.AddComponent<InputController>();
 	}
 	

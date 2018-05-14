@@ -9,9 +9,8 @@ public class EditorNavController : MonoBehaviour {
 	
 
 	// Dynamic vars
-	private List<EditorNavLevelUI> _stagedLevels;
-	private List<EditorNavLevelUI> _submittedLevels;
-
+	private List<EditorNavLevelUI> _myLevels;
+	public static EditorNavLevelUI SelectedLevel;
 
 	// On instantiation
 	void Start() {
@@ -28,18 +27,9 @@ public class EditorNavController : MonoBehaviour {
 /// -----------------------------------------------------------------------------------------------
 /// Public methods --------------------------------------------------------------------------------
 
-	public void OpenNewEditor() {
-		Static.LevelID = null;
-		SceneManager.LoadSceneAsync("Editor", LoadSceneMode.Single);
-	}
-
-	public void OpenEditor(int levelID) {
-		Static.LevelID = levelID;
-		SceneManager.LoadSceneAsync("Editor", LoadSceneMode.Single);
-	}
-
 	public void RateNewLevel() {
-
+		Static.CurrentLevel = new DB.Level("meeeep");
+		SceneManager.LoadSceneAsync("Game", LoadSceneMode.Single);
 	}
 
 	public void ReRateLevel() {
@@ -55,12 +45,33 @@ public class EditorNavController : MonoBehaviour {
 
 	// Initialize game variables
 	private void InitVars() {
-		
+		_myLevels = new List<EditorNavLevelUI>();
+		SelectedLevel = null;
 	}
+
+
+/// -----------------------------------------------------------------------------------------------
+/// Database Queries ------------------------------------------------------------------------------
 
 	// Loads levels that you've submitted
 	private void LoadMyLevels() {
+		GameObject nonsubmit = Resources.Load<GameObject>("Prefabs/UI/NonSubmittedLevel");
+		GameObject submit = Resources.Load<GameObject>("Prefabs/UI/SubmittedLevel");
+		Transform parent = GameObject.Find("MyLevelsContent").transform;
 
+		List<Level> levels = Server.LoadMyLevels();
+		levels.Sort((x, y) => string.Compare(x.Info.LevelID, y.Info.LevelID, System.StringComparison.Ordinal));
+
+		GameObject level;
+		float height = Mathf.Max(submit.GetComponent<RectTransform>().sizeDelta.y, nonsubmit.GetComponent<RectTransform>().sizeDelta.y);
+		for(int i = 0; i < levels.Count; i++) {
+			level = (!levels[i].Info.Submitted)? Instantiate(nonsubmit, parent) : Instantiate(submit, parent);
+			level.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -height * i);
+
+			_myLevels.Add(level.GetComponent<EditorNavLevelUI>());
+			_myLevels[i].SetProperties(levels[i]);
+		}
+		parent.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(0, height * levels.Count);
 	}
 	
 }

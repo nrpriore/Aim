@@ -24,7 +24,7 @@ public class BoundaryController : MonoBehaviour {
 
 	// On instantiation
 	void Awake() {
-		InitVars();
+		InitVars(); 
 	}
 
 	// Runs every frame
