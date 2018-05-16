@@ -1,6 +1,6 @@
 ﻿using UnityEngine;						// To inherit from Monobehaviour
 using UnityEngine.SceneManagement;		// To change scenes
-using System.IO;
+using System.IO;						// For DirectoryInfo
 
 public class MainMenuController : MonoBehaviour {
 

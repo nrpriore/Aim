@@ -24,6 +24,8 @@ Assembly-CSharp.csproj
 *.sublime-workspace
 *.code-workspace
 .vscode/
+/.vscode/
+.vscode
 *.sln
 *.pidb
 *.suo

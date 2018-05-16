@@ -1,6 +1,6 @@
 ﻿using UnityEngine;						// To inherit from Monobehaviour
 using System.Collections.Generic;		// For dictionarties
-using System;
+using System;							// For Array class
 
 // Holds static variables 
 public static class Static {
